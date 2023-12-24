@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  background-image: url('https://img1.picmix.com/output/pic/normal/2/7/3/4/3614372_a8d41.gif'); /* Reemplaza 'ruta-de-tu-imagen.jpg' con la ubicación de tu imagen */
+  background-size: cover; /* Ajusta el tamaño de la imagen para cubrir todo el fondo */
+  background-repeat: no-repeat; /* Evita la repetición de la imagen */
+  background-position: center center; /* Centra la imagen en el fondo */
+height:100vh;
+}
+h1{
+    color:#fff;
+}
+.loader-container{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Fondo semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Asegura que esté en capa superior */
+color:#fff;
+}
+
+.loader {
+  border: 8px solid #f3f3f3; /* Light grey */
+  border-top: 8px solid #3498db; /* Azul */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  padding:10px;
+  display:none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Oculta el loader cuando el contenido de la página está listo */
+#contenidoPagina.loaded + #loaderContainer {
+  display: none;
+}
+</style>
+  <title>Página con Loader</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="loader-container" id="loaderContainer">
+    <div class="loader"></div>
+  </div>
+
+  <div class="contenido-pagina" id="contenidoPagina">
+    <!-- Contenido de tu página aquí -->
+    <h1>Felices fiestas </h1>
+    <!-- Más contenido... 
+  </div>
+<!-- Cambiado de "tiempoRestanteContainer" a "loaderContainer" para reflejar mejor su propósito -->
+<div id="loaderContainer" class="loader-container">
+  <h1 id="tiempoRestanteContainer" class="tiempo-restante"></h1>
+</div>
+
+<div id="contenidoPagina" class="contenido-pagina">
+  <h1 id="mensajeContainer"></h1>
+  <h1 id="tiempoRestanteContainer"></h1>
+  <!-- Contenido de tu página aquí -->
+  
+</div>
+
+</body>
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+  var mensajeContainer = document.getElementById('mensajeContainer');
+  var mensajeTexto = "Que tengas una Feliz navidad"; // Puedes cambiar el mensaje según tus necesidades
+  var velocidadEscritura = 100; // Velocidad de escritura en milisegundos
+
+  function mostrarMensajeConTyping() {
+    var caracteres = mensajeTexto.split('');
+    mensajeContainer.innerHTML = ''; // Limpia el contenido actual
+
+    caracteres.forEach(function (caracter, index) {
+      setTimeout(function () {
+        mensajeContainer.innerHTML += caracter;
+
+        // Si se ha escrito el último caracter, reinicia el proceso después de un breve retraso
+        if (index === caracteres.length - 1) {
+          setTimeout(function () {
+            mostrarMensajeConTyping();
+          }, 1000); // Puedes ajustar el tiempo antes de reiniciar
+        }
+      }, velocidadEscritura * index);
+    });
+  }
+
+  // Llama a la función para iniciar el efecto de escritura
+  mostrarMensajeConTyping();
+});
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  var mensajeContainer = document.getElementById('mensajeContainer');
+  var tiempoRestanteContainer = document.getElementById('tiempoRestanteContainer'); // Cambiado de id="tiempoRestanteContainer" a id="loaderContainer"
+
+  function mostrarTiempoRestante() {
+    // Obtén la hora actual
+    var ahora = new Date();
+    var horas = ahora.getHours();
+
+    // Calcula el tiempo hasta las 12 PM (12:00)
+    var tiempoHastaMediodia = new Date();
+    tiempoHastaMediodia.setHours(24, 0, 0, 0);
+
+    // Calcula la diferencia de tiempo en milisegundos
+    var diferenciaTiempo = tiempoHastaMediodia - ahora;
+
+    // Calcula las horas, minutos y segundos restantes
+    var horasRestantes = Math.floor(diferenciaTiempo / (1000 * 60 * 60));
+    var minutosRestantes = Math.floor((diferenciaTiempo % (1000 * 60 * 60)) / (1000 * 60));
+    var segundosRestantes = Math.floor((diferenciaTiempo % (1000 * 60)) / 1000);
+
+    // Asegúrate de que el elemento tiempoRestanteContainer está disponible antes de intentar actualizar su contenido
+    if (tiempoRestanteContainer) {
+      tiempoRestanteContainer.innerHTML = `Tiempo restante, Para Navidad: ${horasRestantes}h ${minutosRestantes}m ${segundosRestantes}s`;
+    }
+  }
+
+  // Muestra el tiempo restante inicial
+  mostrarTiempoRestante();
+
+  // Actualiza el tiempo restante cada segundo
+  setInterval(mostrarTiempoRestante, 1000);
+
+  // Configura el temporizador para mostrar el mensaje a las 12 PM
+  var diferenciaTiempo = 0; // Declara la variable aquí
+  setTimeout(function () {
+    //mensajeContainer.innerHTML = '¡Que tengas una Feliz navidad ';
+  }, diferenciaTiempo);
+});
+
+
+
+</script>
+</html>
