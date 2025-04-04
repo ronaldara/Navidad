@@ -39,7 +39,14 @@
     }
 
     async function startCamera() {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // Solicitar el acceso a la cámara trasera
+      const constraints = {
+        video: {
+          facingMode: { exact: "environment" } // Esta línea prioriza la cámara trasera
+        }
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       camera.srcObject = stream;
 
       setInterval(detectObjects, 1000);  // Ejecutar detección cada segundo
