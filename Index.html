@@ -1,127 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Clientes</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            text-align: center;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        button {
-            padding: 8px 12px;
-            border: none;
-            cursor: pointer;
-            color: white;
-            border-radius: 5px;
-        }
-        .whatsapp {
-            background-color: #25d366;
-        }
-        .call {
-            background-color: #007bff;
-        }
-        @media (max-width: 600px) {
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conteo Automático de Pollos</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
 </head>
 <body>
+  <h1>Conteo Automático de Pollos</h1>
+  <video id="camera" width="640" height="480" autoplay></video>
+  <p id="status">Esperando...</p>
+  <p id="count">Pollos contados: 0</p>
 
-    <h2>Registro de Clientes</h2>
+  <script>
+    const camera = document.getElementById('camera');
+    const status = document.getElementById('status');
+    const count = document.getElementById('count');
+    
+    let model;
 
-    <form id="clienteForm">
-        <input type="text" id="idCliente" placeholder="ID" required>
-        <input type="text" id="nombreCliente" placeholder="Nombre" required>
-        <input type="tel" id="telefonoCliente" placeholder="Teléfono" required>
-        <button type="submit">Agregar Cliente</button>
-    </form>
+    async function loadModel() {
+      model = await cocoSsd.load();
+      status.innerHTML = "Modelo cargado. Detectando pollos...";
+    }
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>WhatsApp</th>
-                <th>Llamar</th>
-            </tr>
-        </thead>
-        <tbody id="tablaClientes"></tbody>
-    </table>
+    async function detectObjects() {
+      const predictions = await model.detect(camera);
+      let polloCount = 0;
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            mostrarClientes();
-        });
-
-        document.getElementById("clienteForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            agregarCliente();
-        });
-
-        function obtenerClientes() {
-            return JSON.parse(localStorage.getItem("clientes")) || [];
+      predictions.forEach(prediction => {
+        if (prediction.class === 'person' || prediction.class === 'bird') { // Podrías mejorar con otro nombre
+          polloCount++;
         }
+      });
 
-        function guardarClientes(clientes) {
-            localStorage.setItem("clientes", JSON.stringify(clientes));
-        }
+      count.innerHTML = `Pollos contados: ${polloCount}`;
+    }
 
-        function agregarCliente() {
-            let id = document.getElementById("idCliente").value;
-            let nombre = document.getElementById("nombreCliente").value;
-            let telefono = document.getElementById("telefonoCliente").value;
+    async function startCamera() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      camera.srcObject = stream;
 
-            let clientes = obtenerClientes();
-            clientes.push({ id, nombre, telefono });
+      setInterval(detectObjects, 1000);  // Ejecutar detección cada segundo
+    }
 
-            guardarClientes(clientes);
-            mostrarClientes();
-            document.getElementById("clienteForm").reset();
-        }
-
-        function mostrarClientes() {
-            let clientes = obtenerClientes();
-            let tabla = document.getElementById("tablaClientes");
-            tabla.innerHTML = clientes.map(cliente => `
-                <tr>
-                    <td>${cliente.id}</td>
-                    <td>${cliente.nombre}</td>
-                    <td>${cliente.telefono}</td>
-                    <td><button class="whatsapp" onclick="enviarWhatsApp('${cliente.telefono}')">WhatsApp</button></td>
-                    <td><button class="call" onclick="llamar('${cliente.telefono}')">Llamar</button></td>
-                </tr>
-            `).join("");
-        }
-
-        function enviarWhatsApp(telefono) {
-            window.open(`https://wa.me/${telefono}`, "_blank");
-        }
-
-        function llamar(telefono) {
-            window.location.href = `tel:${telefono}`;
-        }
-    </script>
-
+    loadModel().then(startCamera);
+  </script>
 </body>
 </html>
